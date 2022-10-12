@@ -1,0 +1,62 @@
+<!--
+-mapper 태그에 namespace 속성은 연동시키고자 하는 Mapper 인터페이스명을 경로와 함께 명시해준다.
+ 저는 com.vam.mapper.MemberMapper로 작성하였다. MemberMapper는 다음 순서에서 만든다.
+-->
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="com.vam.mapper.MemberMapper">
+
+  </mapper>
+
+<!--
+-mapper 태그 내에 insert 태그를 새로 추가해준다. insert 태그의 id속성은 'memberJoin'으로 한다.
+ memberJoin은 다음 순서에서 만들자.
+
+-insert 태그 내에 앞서 테스트하였던 insert 쿼리 명령문을 붙여 넣기 한 후 삽입될 데이터를 
+ '#[VO에 저장된 데이터 이름]'으로 교체해준다.
+
+-adminCk는 회원가입 시 기본적으로 일반회원으로 등록하기 위해 0을 삽입했다. 
+
+-money, point의 경우 추우에 회원이 물품을 구매하는 기능을 구현하기 위해 회원에게 10만원과 5천포인트를 기본으로 가질 수 있도록 설정
+-->
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="com.vam.mapper.MemberMapper">
+  	
+    <!-- 회원가입 -->
+    <insert id="memberJoin">
+  	
+    	insert into book_member values(#{memberId}, #{memberPw}, #{memberName}, #{memberMail}, #{memberAddr1}, #{memberAddr2}, #{memberAddr3}, 0, sysdate, 100000, 5000 )    
+  	
+    </insert>
+
+    <!-- 아이디 중복검사 -->
+  	<select id="idCheck" resultType="int">	
+  	
+    	select count(*) from book_member where memberId = #{memberId} 	
+  	
+    </select>
+
+    <!-- 로그인 -->
+    <select id="memberLogin" resultType="com.vam.model.MemberVO">
+     
+      <!-- 수정된 코드 -->
+      select memberId, memberPw, memberName, adminck, money, point from book_member where memberId = #{memberId}
+          <!-- 기존코드 -->
+          <!-- select memberId, memberName, adminck, money, point from book_member where memberId = #{memberId} and memberPw = #{memberPw} -->
+    
+    </select>
+
+    <!-- 주문자 정보 -->
+    <select id="getMemberInfo" resultType="com.vam.model.MemberVO">
+    
+            SELECT memberId, memberName, memberMail, memberAddr1, memberAddr2, memberAddr3, money, point
+            FROM book_member
+            WHERE memberId = #{memberId}
+
+    </select>
+  </mapper>

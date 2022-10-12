@@ -1,0 +1,19 @@
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="com.vam.mapper.ReplyMapper">
+ 
+    <!--댓글등록-->
+    <insert id="enrollReply">
+
+        <!--
+            ReplyMapper 인터페이스에서 선언한 메서드가 수행할 쿼리를 작성한다.
+                -replyId는 DB의 자동 기본기 추가 기능을 사용했다.
+                -regDate는 테이블 생성 시 기본값을 등록되는 현재의 시간으로 했다.
+        -->
+        insert into vam_reply(bookId, memberId, content, rating) values(#{bookId}, #{memberId}, #{content}, #{rating})
+  	
+  	</insert>
+
+    </insert>
+  </mapper>

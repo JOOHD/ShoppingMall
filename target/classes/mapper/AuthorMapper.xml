@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <!-- namespace 속성 값에 AuthorMapper.java의 경로를 포함한 
+        동일한 파일 이름이 작성되어야 한다.-->
+  <mapper namespace="com.vam.mapper.AuthorMapper">
+  
+  <!--속성 값은 AuthorMapper.java에서 작성한 작가 등록 기능을 수행하는 메서드명과 동일한 이름을 작성
+        AuthorVO에서 정의된 변수가 호출될 수 있도록 순서에 맞게 AuthorVO의 변수 이름과 동일한 변수명을 #{}을 붙여서 작성-->
+      <insert id="authorEnroll">
+            insert into vam_author(authorName, nationId, authorInfo) values(#{authorName}, #{nationId}, #{authorIntro})
+      </insert>      
+
+  </mapper>
+
+<!-- 작가 목록(Oracle) 
+※ '인덱스 힌트'인 "/*+INDEX_DESC(테이블명 인덱스명)*/"을 작성해주어야 하는데 우리는 인덱스(index)를 지정해주지 않았습니다. 
+      하지만 기본키를 설정을 하게 되면 오라클에서 자동으로 기본키 칼럼(column)을 대상으로 하는 인덱스(index)를 생성합니다. 
+      따라서 자동으로 생성된 인덱스를 찾아서 인덱스명을 입력해주면 됩니다.
+-->
+      <select id="authorGetList" resultType="com.vam.model.AuthorVO">
+      
+      <![CDATA[
+          select * from (
+              select /*+INDEX_DESC(vam_author 인덱스명) */ 
+                  rownum as rn, authorid, authorname, nationid, regdate, updatedate
+            from vam_author 
+            where
+             
+    ]]>         
+            <if test="keyword != null">
+                authorname like '%'||#{keyword}||'%' and
+            </if>
+            
+    <![CDATA[        
+             rownum <= #{pageNum}*#{amount}
+            )
+        where rn > (#{pageNum} - 1) * #{amount}
+      ]]>
+      
+      </select>
+
+<!-- 작가 목록(MySQL) -->
+    <select id="authorGetList" resultType="com.vam.model.AuthorVO">
+    
+        select  authorid, authorname, nationid, regdate, updatedate
+        from vam_author 
+        <if test="keyword != null">
+            where authorname like concat('%',#{keyword}, '%')
+        </if>
+        order by authorid desc 
+        limit #{skip}, #{amount}    
+    
+    </select>
+
+<!-- 작가 수(Oracle)
+      총 개수를 구하는 것이기 때문에 count(*)을 사용하였따. 더불어 authorGetList() 쿼리에서 작용되는
+      조건문(where문)을 같이 작성해주어야 한다. 왜냐하면, 검색조건에 따라 페이지 개수가 변해야 하는데
+      조건문을 적용해주지 않는다면 뷰에 출력되는 '페이지 이동 인터페이스'에 실제 존재해야 할 페이지
+      개수보다 더 많은 번호가 출력되기 때문이다.-->
+      <select id="authorGetTotal" resultType="int">
+      
+            select count(*) from vam_author
+
+            <if test="keyword != null">
+            
+                  where authorname like '%' || #{keyword} || '%'
+
+            </if>
+
+      </select>
+
+    <!-- MySQL -->
+      <!-- 작가 수 -->
+      <select id="authorGetTotal" resultType="int">
+      
+          select count(*) from vam_author
+          
+          <if test="keyword != null">
+          
+              where authorname like concat('%', #{keyword}, '%');
+          
+          </if>
+          
+      </select>      
